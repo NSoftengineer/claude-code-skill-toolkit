@@ -1,4 +1,4 @@
-# Claude Code Full-Flow Toolkit v6 — Installation and User Guide (Windows)
+# Claude Code Skill Toolkit v6 — Installation and User Guide (Windows)
 
 > A guide to the user-level `ps-*` Toolkit, which can be installed once and reused across multiple repositories. It covers milestones/waves, GitHub Issues, role-based coding, E2E testing, and reporting. **Installing the Toolkit does not install third-party tools.**
 
@@ -9,7 +9,7 @@
 ### Repository layout to publish on GitHub
 
 ```text
-claude-code-full-flow-toolkit/
+claude-code-skill-toolkit/
 ├── README.md
 ├── install.ps1
 ├── uninstall.ps1
@@ -62,8 +62,8 @@ After extracting the ZIP, make sure you are working **directly inside** the fold
 5. Create the repository and push to GitHub **only after confirming its name and permissions**:
 
    ```powershell
-   gh repo create OWNER/claude-code-full-flow-toolkit --private --source=. --remote=origin --push
-   gh repo view OWNER/claude-code-full-flow-toolkit --web
+   gh repo create OWNER/claude-code-skill-toolkit --private --source=. --remote=origin --push
+   gh repo view OWNER/claude-code-skill-toolkit --web
    ```
 
    `--private` restricts repository access to authorized users. Switch to `--public` only after confirming the contents are ready for public release. Use `gh repo create` **only to create a new repository**, not for an existing one.
@@ -72,7 +72,7 @@ After extracting the ZIP, make sure you are working **directly inside** the fold
 
 ```powershell
 git remote -v
-git remote add origin https://github.com/OWNER/claude-code-full-flow-toolkit.git
+git remote add origin https://github.com/OWNER/claude-code-skill-toolkit.git
 git push -u origin main
 ```
 
@@ -86,11 +86,11 @@ Ideally, create the GitHub repository without selecting a README, License, or `.
 
    ```powershell
    Set-Location (Join-Path $HOME 'Documents')
-   git clone https://github.com/OWNER/claude-code-full-flow-toolkit.git
-   Set-Location .\claude-code-full-flow-toolkit
+   git clone https://github.com/OWNER/claude-code-skill-toolkit.git
+   Set-Location .\claude-code-skill-toolkit
    ```
 
-   Alternatively, run `gh repo clone OWNER/claude-code-full-flow-toolkit` instead of `git clone` if you have already authenticated GitHub CLI. **Cloning alone does not install the Skills.**
+   Alternatively, run `gh repo clone OWNER/claude-code-skill-toolkit` instead of `git clone` if you have already authenticated GitHub CLI. **Cloning alone does not install the Skills.**
 
 2. Inspect the cloned source before running any script:
 
@@ -129,7 +129,7 @@ Ideally, create the GitHub repository without selecting a README, License, or `.
 Open **PowerShell in the cloned Toolkit source folder (not your application project)** and check for local modifications before updating:
 
 ```powershell
-Set-Location (Join-Path $HOME 'Documents\claude-code-full-flow-toolkit')
+Set-Location (Join-Path $HOME 'Documents\claude-code-skill-toolkit')
 git status --short
 git pull --ff-only
 Set-ExecutionPolicy -Scope Process Bypass
@@ -145,7 +145,7 @@ After updating, restart Claude Code and check the slash commands again. **Runnin
 1. Open PowerShell in the **cloned source folder** and inspect the uninstall script:
 
    ```powershell
-   Set-Location (Join-Path $HOME 'Documents\claude-code-full-flow-toolkit')
+   Set-Location (Join-Path $HOME 'Documents\claude-code-skill-toolkit')
    Get-Content .\uninstall.ps1
    Set-ExecutionPolicy -Scope Process Bypass
    .\uninstall.ps1
@@ -166,8 +166,8 @@ After updating, restart Claude Code and check the slash commands again. **Runnin
 
 | Goal | Run in | Command |
 |---|---|---|
-| Publish repository (first time) | PowerShell, Toolkit root | `gh repo create OWNER/claude-code-full-flow-toolkit --private --source=. --remote=origin --push` |
-| Clone Repo | PowerShell | `git clone https://github.com/OWNER/claude-code-full-flow-toolkit.git` |
+| Publish repository (first time) | PowerShell, Toolkit root | `gh repo create OWNER/claude-code-skill-toolkit --private --source=. --remote=origin --push` |
+| Clone Repo | PowerShell | `git clone https://github.com/OWNER/claude-code-skill-toolkit.git` |
 | First installation | PowerShell, Toolkit root | `.\install.ps1` |
 | Upgrade / Replace (with backup) | PowerShell, Root Toolkit | `.\install.ps1 -Force` |
 | Get latest code | PowerShell, Root Toolkit | `git pull --ff-only` |
