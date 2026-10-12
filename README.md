@@ -3,6 +3,41 @@
 > A guide to the user-level `ps-*` Toolkit, which can be installed once and reused across multiple repositories. It covers milestones/waves, GitHub Issues, role-based coding, E2E testing, and reporting. **Installing the Toolkit does not install third-party tools.**
 
 
+
+## NEW in v8.1 — Backend router scan & API scenario planning (one command)
+
+For a complete **repository-level backend API route inventory** followed by evidence-based scenario planning, open Claude Code at the root of the target project and run:
+
+```text
+/ps-e2e-plan --role backend
+```
+
+This deliberately **does not require a Wave or GitHub Issue**. It instructs the `e2e-test-planner` subagent to discover the repository's router registration entry points, follow nested router prefixes, list registered HTTP method + effective URL paths, cross-check controllers/OpenAPI/existing tests, and propose API test scenarios per endpoint. It performs **planning only**; tests are not written, executed or marked PASS. Some dynamically registered endpoints may require manual confirmation.
+
+For an explicit full scan and a Wave mapping:
+
+```text
+/ps-e2e-plan W1 --role backend --target api --scope all-routes
+```
+
+For a known router file or directory:
+
+```text
+/ps-e2e-plan --role backend --router-file src/routes/api.ts
+/ps-e2e-plan --role backend --router-dir src/routes --scope all-routes
+```
+
+Replace the sample router paths with paths that exist in your repository. Use `-role backend` only as an alias; `--role backend` is recommended. Other examples:
+
+```text
+/ps-e2e-plan W1 --role backend --target api            # Wave-focused
+/ps-e2e-plan W1 --target both                         # API + UI journeys
+```
+
+**Workflow:** inspect `CLAUDE.md` → locate router entry points → recursively resolve `METHOD + effective path` → verify source/spec evidence → identify auth and inputs/outputs → produce positive, negative, validation, security and contract scenarios → report route/scenario coverage and gaps → **STOP for human approval**. Repository-wide inventory can still run without `gh` login, but mapping rows to GitHub Issue acceptance criteria requires real Issue data.
+
+**Sample output files after approval:** `docs/ps-flow/e2e/REPOSITORY/API-ROUTE-INVENTORY.md`, `API-E2E-TEST-PLAN.md`, and `E2E-PATH-COVERAGE-MATRIX.md`. The plan separates `EXISTING` tests from `PROPOSED` scenarios and `BLOCKED` cases. Only `/ps-e2e-test` with an approved test scope and safe environment is intended to run actual Playwright API tests. See [`templates/API-ROUTE-INVENTORY.md`](templates/API-ROUTE-INVENTORY.md) for the inventory schema and [`templates/API-E2E-TEST-PLAN.md`](templates/API-E2E-TEST-PLAN.md) for scenario fields.
+
 ## NEW in v8 — E2E planning for both API paths and frontend routes
 
 **One E2E plan can cover both surfaces** in a Milestone/Wave: (1) backend HTTP API endpoints, (2) frontend URL routes and browser UI, and (3) cross-layer journeys linking frontend interactions to real API responses and observable application state. Playwright supports API testing using its `request` fixture / `APIRequestContext`, and browser testing using `page` fixtures. These are **proposed coverage plans**, not automatic test results.
