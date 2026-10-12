@@ -1,11 +1,16 @@
 ---
 name: ps-e2e-gate
-description: Apply an evidence-based E2E release gate for a Wave; block on missing critical coverage, test failures, or unapproved risk.
-argument-hint: "WAVE-ID [--run RUN-ID]"
+description: Apply strict per-Wave E2E quality gates across mandatory API endpoint, frontend browser, and cross-layer integration coverage.
+argument-hint: 'WAVE-ID [--run RUN-ID] [--target api|frontend|both]'
 ---
-# E2E Quality Gate
-1. Require the approved Wave exit criteria, authoritative Issue acceptance criteria, current explicit E2E execution evidence, and `/ps-e2e-verify` mapping.
-2. PASS only when all mandatory wave acceptance criteria have actual passing evidence, no critical/high unresolved defects for the scoped release, required browsers/environments completed, and run status is successful. User may define stricter thresholds before testing.
-3. FAIL when required tests executed and failed or confirmed critical/high defects remain. BLOCKED when evidence, environment, access, approval, or required coverage is missing. PARTIAL is a report-only state and is NOT permission to advance.
-4. No approval bypass: a user risk acceptance is a separately documented decision, not an automatic PASS. Never close issues, promote releases, deploy, or start next wave.
-5. Produce gate record: Wave, milestone, source issue set, chosen run, counts, mandatory criteria mapping, findings, reviewer, timestamp, status, release blockers, next actions. STOP.
+# E2E Quality Gate — API + Frontend + Integration
+
+1. Require approved Wave criteria, authoritative GitHub acceptance criteria, required targets, current exact test run evidence and verification matrix. Default planned target is `both`, but only source-grounded required surfaces can be marked mandatory or NOT APPLICABLE.
+2. Evaluate three gates separately:
+   - `API GATE`: every mandatory API method+path criterion is exercised, required success/negative/auth/contract cases pass, no High/Critical API defects remain.
+   - `FRONTEND GATE`: mandatory page routes and browser flows pass in required browsers/viewports, required frontend defects resolved.
+   - `INTEGRATION GATE`: mandatory UI→API→observable-state scenarios execute and pass; independent API/Frontend PASS alone cannot satisfy a required integrated journey.
+3. Each gate is PASS / FAIL / BLOCKED / NOT APPLICABLE. Fail for an executed mandatory failure or confirmed High/Critical defect; block for missing environment, missing test, absent or incomplete evidence, unavailable authorization, or uncovered mandatory acceptance criterion. NOT APPLICABLE requires an explicit evidence-based reason.
+4. OVERALL PASS only if every applicable mandatory gate is PASS and the current approved run completed successfully. A report-only `PARTIAL` is never permission to advance. Non-mandatory exploratory checks may be tracked separately and cannot conceal mandatory gaps.
+5. Report Wave, Milestone, Issues, explicit run ID, API/Frontend/Integration counts, unmatched routes/endpoints, requirements-to-tests mapping, open defects, risks, timestamps, and final PASS/FAIL/BLOCKED with next actions.
+6. Do not automatically close Issues, deploy, start another Wave, overwrite reports or bypass human approval. STOP.

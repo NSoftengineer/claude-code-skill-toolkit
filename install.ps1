@@ -2,7 +2,7 @@ param([switch]$Force)
 $ErrorActionPreference = 'Stop'
 $source = Split-Path -Parent $MyInvocation.MyCommand.Path
 $target = Join-Path $HOME '.claude'
-$backupRoot = Join-Path $target ('full-flow-v6-backups\' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
+$backupRoot = Join-Path $target ('full-flow-v8-backups\' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
 foreach ($section in @('agents','skills')) {
  $sourceSection = Join-Path $source $section
  Get-ChildItem -Path $sourceSection -Recurse -File | ForEach-Object {
@@ -19,6 +19,7 @@ foreach ($section in @('agents','skills')) {
   Write-Host "INSTALLED: $destination" -ForegroundColor Green
  }
 }
-Write-Host 'Done. Restart Claude Code; available skills: /ps-plan-project /ps-create-issues /ps-implementation-table /ps-implement-issue /ps-verify-issue /ps-review-code /ps-plan-waves /ps-create-milestones /ps-implement-wave /ps-e2e-plan /ps-e2e-test /ps-e2e-report /ps-e2e-verify /ps-e2e-gate' -ForegroundColor Cyan
+$installedSkillNames = Get-ChildItem -Path (Join-Path $source 'skills') -Directory | Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName 'SKILL.md') } | Sort-Object Name | ForEach-Object { '/' + $_.Name }
+Write-Host ('Done. Restart Claude Code; bundled skills: ' + ($installedSkillNames -join ', ')) -ForegroundColor Cyan
 
 Write-Host 'Optional third-party integrations are NOT auto-installed. Read THIRD-PARTY-INTEGRATIONS.md and run /ps-check-integrations.' -ForegroundColor Yellow

@@ -72,3 +72,10 @@ Restart Claude Code. Verify `/impeccable` appears in the skill list. On each tar
 Alternative plugin-based install: `/plugin marketplace add pbakaus/impeccable` followed by selecting Impeccable inside `/plugin`. Choose one installation method to avoid duplicates.
 
 In a `frontend` wave, use `shape` to plan UI, `audit`/`critique` for inspection, then `polish`/`harden` only for approved UI changes. Never allow these commands to expand GitHub Issue scope; report unapproved recommendations instead.
+
+
+## Playwright API and frontend E2E planning
+
+The Toolkit v8 `ps-e2e-plan --target both` inventories HTTP API methods/paths and frontend routes, plus integrated browser-to-API scenarios. Playwright Test must be configured separately within each application repository. Its `request` fixture can perform REST API assertions, while browser tests use the `page` fixture. These features do not require installing a second testing product. Configure separate API and frontend base URLs according to your application and never run mutating API tests against production. Use `/ps-e2e-plan W1 --target both` in Claude Code, not PowerShell.
+
+Docs: https://playwright.dev/docs/api-testing and https://playwright.dev/docs/test-projects

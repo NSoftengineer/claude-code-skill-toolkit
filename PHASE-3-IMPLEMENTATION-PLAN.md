@@ -88,3 +88,13 @@ If a single Issue contains work for multiple Roles, record separate Role rows or
 
 ## E2E Exit Gate (v6)
 After an approved Wave implementation: `/ps-e2e-plan W1` → approval for environment/test execution → `/ps-e2e-test W1 --env staging` → `/ps-e2e-report W1` → `/ps-e2e-verify W1` → `/ps-e2e-gate W1` → STOP. Missing tests or evidence yields BLOCKED, not PASS.
+
+
+## v7 — One-command queue generation
+
+Run `/ps-full-flow` from the application repository to discover/plan/validate, pause for explicit publication approval, publish verified GitHub Milestones and Issues, and create `docs/ps-flow/IMPLEMENTATION-QUEUE.md` + `.json`. This ends at **REPORT → STOP**, and never automatically invokes `/ps-implement-wave` or `/ps-implement-issue`.
+
+
+## v8 API + Frontend E2E acceptance testing
+
+For waves that implement HTTP APIs and browser UI, plan both surfaces with `/ps-e2e-plan W1 --target both`. Test Plan output inventories discovered API method/path pairs, frontend URL routes, and cross-layer user journeys. Map each case to the real Issue/acceptance criterion and selected Wave; obtain approval before writing any project files. On execution, `/ps-e2e-test W1 --target both --env staging` uses existing repository Playwright tests only, then `/ps-e2e-report`, `/ps-e2e-verify`, and `/ps-e2e-gate` record API, Frontend, and Integration verdicts separately. Absent mandatory evidence blocks the wave.

@@ -1,35 +1,47 @@
-# E2E Test Report — <WAVE-ID>
+# E2E Test Report — <WAVE-ID> (API / Frontend / Integration)
 
-> TEMPLATE ONLY — replace placeholders using actual test run artifacts. Do not mark PASS without evidence.
+> TEMPLATE ONLY. Actual PASS requires machine-readable evidence from an authorized run.
 
-- Repository: <OWNER/REPO>
-- Milestone / Wave: <MILESTONE> / <WAVE>
-- Run ID / UTC Timestamp: <RUN-ID> / <TIME>
-- Branch / Commit: <BRANCH> / <COMMIT>
-- Environment: <APPROVED LOCAL OR STAGING URL>
-- Browser projects: <BROWSERS>
-- Exact test command: `<COMMAND>`
-- Process exit code: <EXIT CODE>
-- Evidence paths: <JSON> | <JUNIT> | <HTML>
+- Repository / Milestone / Wave: `<OWNER/REPO>` / `<MILESTONE>` / `<WAVE>`
+- Selected target(s): `api|frontend|both`
+- Run ID / UTC Timestamp: `<RUN-ID>` / `<TIME>`
+- Branch / Commit: `<BRANCH>` / `<COMMIT>`
+- Approved API Environment / Frontend Environment: `<REDACTED_URLS>`
+- Browser projects: `<BROWSERS_OR_NOT_APPLICABLE>`
+- Exact test command(s): `<COMMANDS>`
+- Exit code(s): `<CODES>`
+- Evidence: `<JSON>` | `<JUNIT>` | `<HTML>` | `<TRACES_IF_ANY>`
 
-## Summary
-| Total | Passed | Failed | Skipped | Flaky | Interrupted | Status |
-|---:|---:|---:|---:|---:|---:|---|
-| TBD | TBD | TBD | TBD | TBD | TBD | NOT RUN |
+## Execution summary by target
+| Target | Required | Existing | Executed | Passed | Failed | Skipped | Not Run | Verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| API Paths | TBD | TBD | TBD | TBD | TBD | TBD | TBD | BLOCKED |
+| Frontend Routes | TBD | TBD | TBD | TBD | TBD | TBD | TBD | BLOCKED |
+| Cross-layer Journeys | TBD | TBD | TBD | TBD | TBD | TBD | TBD | BLOCKED |
 
-## Acceptance Criteria Traceability
-| Issue | Acceptance Criterion | Test Case ID | Actual Result | Evidence | Verdict |
-|---|---|---|---|---|---|
-| TBD | TBD | TBD | NOT RUN | TBD | BLOCKED |
+## API results
+| Issue / AC | Test ID | HTTP Method | API Path | Expected Status / Contract | Actual | Evidence | Verdict |
+|---|---|---|---|---|---|---|---|
+| TBD | TBD | TBD | TBD | TBD | NOT RUN | — | BLOCKED |
 
-## Defects
-| ID | Severity | Test | Evidence | Reproduction | Status |
-|---|---|---|---|---|---|
+## Frontend results
+| Issue / AC | Test ID | Route | Browser / Viewport | Expected UI Behavior | Actual | Evidence | Verdict |
+|---|---|---|---|---|---|---|---|
+| TBD | TBD | TBD | TBD | TBD | NOT RUN | — | BLOCKED |
 
-## Gaps / Risks
-- <GAPS>
+## Cross-layer user-journey results
+| Issue / AC | Flow ID | UI Action + Route | HTTP Method + API Path | Expected State/UI | Actual | Evidence | Verdict |
+|---|---|---|---|---|---|---|---|
+| TBD | TBD | TBD | TBD | TBD | NOT RUN | — | BLOCKED |
 
-## E2E Gate
-- Verdict: BLOCKED until verified
-- Blockers: <BLOCKERS>
-- Human approval required before next Wave
+## Defects and missing coverage
+| Defect ID | Surface | Severity | Test ID | Source / Evidence | Reproduction | Status |
+|---|---|---|---|---|---|---|
+
+## Quality Gate
+- API Gate: BLOCKED / NOT APPLICABLE (reason: TBD)
+- Frontend Gate: BLOCKED / NOT APPLICABLE (reason: TBD)
+- Integration Gate: BLOCKED / NOT APPLICABLE (reason: TBD)
+- Overall Verdict: BLOCKED until verified
+- Remaining blockers: TBD
+- No automatic next Wave, GitHub Issue closure, source push or deployment

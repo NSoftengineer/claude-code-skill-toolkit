@@ -1,6 +1,141 @@
-# Claude Code Skill Toolkit v6 — Installation and User Guide (Windows)
+# Claude Code Full-Flow Toolkit v8 — Installation and User Guide (Windows)
 
 > A guide to the user-level `ps-*` Toolkit, which can be installed once and reused across multiple repositories. It covers milestones/waves, GitHub Issues, role-based coding, E2E testing, and reporting. **Installing the Toolkit does not install third-party tools.**
+
+
+## NEW in v8 — E2E planning for both API paths and frontend routes
+
+**One E2E plan can cover both surfaces** in a Milestone/Wave: (1) backend HTTP API endpoints, (2) frontend URL routes and browser UI, and (3) cross-layer journeys linking frontend interactions to real API responses and observable application state. Playwright supports API testing using its `request` fixture / `APIRequestContext`, and browser testing using `page` fixtures. These are **proposed coverage plans**, not automatic test results.
+
+### Quick commands (inside Claude Code)
+
+```text
+/ps-e2e-plan W1 --target both
+/ps-e2e-test W1 --target both --env staging
+/ps-e2e-report W1
+/ps-e2e-verify W1
+/ps-e2e-gate W1
+```
+
+Use `--target api` for API-only coverage, `--target frontend` for browser-only coverage, or `--target both` (default) for API + frontend + integrated user journeys. These options are **skill instructions interpreted by Claude**, not shell flags to run in PowerShell. Run only approved test IDs against local/staging. Never invent actual endpoint paths from an example.
+
+### What is mapped into the test plan?
+
+| Coverage group | Discovery sources | What test rows include | Typical assertions |
+|---|---|---|---|
+| API Paths | OpenAPI/Swagger, backend routes/controllers, existing API tests | HTTP method + endpoint pattern, parameters, auth/roles, expected response, issue/criterion, test source | Status, response schema, validation errors, auth/authorization, error contracts |
+| Frontend Routes | Frontend router and page/component files, frontend acceptance criteria | Route path, page, UI actions/states, browser/viewport, linked API calls, issue/criterion | Navigation, forms, loading/errors, permissions, UI changes |
+| Cross-layer flows | Mapped user journeys + API client calls | Starting route, user action, HTTP method + API path, state/response, resulting UI | Browser action → request → response/data/state → visible outcome |
+
+**Important:** A green API-only suite does not prove the frontend works. Green but independent API and UI suites do not prove the end-to-end integration journey. Mandatory cross-layer acceptance criteria require their own executed evidence.
+
+### Planning outputs (written only after approval)
+
+```text
+project/
+  docs/ps-flow/e2e/W1/
+    API-E2E-TEST-PLAN.md
+    FRONTEND-E2E-TEST-PLAN.md
+    E2E-PATH-COVERAGE-MATRIX.md
+  reports/W1/runs/<UTC-run-id>/
+    ... actual Playwright JSON/JUnit/HTML evidence when tests execute ...
+  reports/W1/E2E-TEST-REPORT.md
+```
+
+The Toolkit provides `templates/E2E-TEST-PLAN.md`, `templates/API-E2E-TEST-PLAN.md`, `templates/FRONTEND-E2E-TEST-PLAN.md`, `templates/E2E-PATH-COVERAGE-MATRIX.md`, and `templates/E2E-TEST-REPORT.md`. These are templates only. Installing the global Toolkit does **not** add Playwright packages, browser binaries, or tests to a project. Configure/install Playwright separately per repository and obtain authorization before running against non-production APIs that modify data.
+
+### Example planning rows (ILLUSTRATIVE ONLY — NOT discovered from your repo)
+
+| Test ID | Issue | Target | Method / API path | Frontend route | Scope |
+|---|---|---|---|---|---|
+| API-W1-001 | #EXAMPLE | API | `POST /api/auth/login` | — | 200/401 contract, invalid input, authorization |
+| FE-W1-001 | #EXAMPLE | FRONTEND | — | `/login` | Form errors, login UI, browser navigation |
+| FLOW-W1-001 | #EXAMPLE | INTEGRATION | `POST /api/auth/login` | `/login` → `/dashboard` | UI action issues request and leads to authenticated page |
+
+A Wave's E2E Gate reports API, Frontend and Integration verdicts separately. It **blocks** if any mandatory surface lacks executed passing evidence. A target can be marked NOT APPLICABLE only with documented architectural/Issue support. This does not change the existing human approval gate or the STOP-after-Wave policy.
+
+See: [Playwright API testing](https://playwright.dev/docs/api-testing), [Playwright Test projects](https://playwright.dev/docs/test-projects), and [Playwright reporters](https://playwright.dev/docs/test-reporters).
+
+---
+
+## NEW in v7 (retained in v8) — One-command `/ps-full-flow` (Discovery → GitHub → Queue)
+
+**Yes: use a single command for the entire planning and GitHub publishing sequence.** This does **not** automatically write application code. It produces an approved and verified GitHub Milestone/Issue backlog and local implementation queue, so your team can then implement Waves by role.
+
+```text
+/ps-full-flow
+```
+
+You can specify a particular repository and objective:
+
+```text
+/ps-full-flow --repo OWNER/REPO Design the billing feature backlog and rollout waves
+```
+
+### How the default OWNER/REPO is selected
+
+When you omit `--repo`, the Skill uses the account returned by `gh api user --jq .login` as `OWNER` and the **current project root folder name** as `REPO` (`git rev-parse --show-toplevel` when in a Git repository; otherwise the working folder). Thus a logged-in user `alice` running Claude Code inside `C:\Work\billing-api` proposes `alice/billing-api`. This is a proposal only until the repository is verified.
+
+It checks any existing Git remote. If the remote points to a different repository, it **stops for a target decision** instead of writing to the wrong destination. If the target repository does not exist, the reviewed publication manifest can include creating a **private** repository. The Skill never silently creates a public repository and does not push application source code.
+
+### End-to-end workflow
+
+```text
+/ps-full-flow
+    |
+    +--> 1. Discover actual repository and requirements [READ-ONLY]
+    |
+    +--> 2. Plan Epics and atomic GitHub Issues [READ-ONLY]
+    |
+    +--> 3. Plan Milestones + dependency-aware Waves [READ-ONLY]
+    |
+    +--> 4. Automatic plan validation [READ-ONLY]
+    |
+    +--> 5. AUTO APPROVAL GATE  <-- pauses for EXPLICIT HUMAN APPROVAL
+    |
+    +--> 6. Publish approved private repo (if needed), Milestones, Issues
+    |        Check duplicates and verify GitHub numbers/URLs
+    |
+    +--> 7. Build implementation queue from VERIFIED GitHub Issues
+    |        docs/ps-flow/IMPLEMENTATION-QUEUE.md
+    |        docs/ps-flow/IMPLEMENTATION-QUEUE.json
+    |
+    +--> 8. Verify -> Report -> STOP (NO automatic code changes)
+```
+
+The **gate is triggered automatically**, but **approval is never automatic**. Claude Code displays the proposed target repository, exact Milestone/Issue operations and queue file changes, and requests your explicit approval **once for that exact manifest**. After approval, the orchestrator continues without requiring you to type `/ps-create-milestones`, `/ps-create-issues`, or `/ps-implementation-table` separately. Significant changes to an approved manifest require renewed approval. If GitHub publishing partially fails, the workflow stops with a verified progress report rather than retrying blindly.
+
+### Output files and commands
+
+The local queue lives in the **application project**, not in the global Toolkit folder:
+
+- `docs/ps-flow/IMPLEMENTATION-QUEUE.md` — human-readable ordered table (Milestone, Wave, Issue, Role, Dependencies, Priority, Status, next command).
+- `docs/ps-flow/IMPLEMENTATION-QUEUE.json` — machine-readable issue-to-wave/role mapping.
+
+The Toolkit contains example source templates under `templates/FULL-FLOW-PUBLISH-MANIFEST.md` and `templates/IMPLEMENTATION-QUEUE.md`. The GitHub Issues referenced in the queue must be **verified**, not fabricated.
+
+After reviewing the resulting queue, choose a Wave and Role:
+
+```text
+/ps-implement-wave W1 --role database
+/ps-implement-wave W1 --role backend
+/ps-implement-wave W2 --role frontend
+/ps-e2e-gate W2
+```
+
+**Important:** These commands are examples, not automatic post-publication steps. Roles are `backend`, `frontend`, `database`, `qa`, `devops`. Implementation has its own per-wave and per-issue approval and quality gates.
+
+### Preconditions and limitations
+
+- Claude Code, Git and authenticated GitHub CLI (`gh auth login` / `gh auth status`). The account must have permission to create Issues, Milestones, and (if necessary) a repository.
+- A real product goal/specification must be provided or exist in the project. The orchestrator will not invent requirements when essential details are missing.
+- GitHub publishing means GitHub **Milestones and Issues**. It does not mean pushing source code, committing, deploying, enabling Actions or closing Issues.
+- The workflow is an **AI-orchestrated Skill**, not a deterministic executable pipeline. An approval prompt requires an additional user reply; execution might stop with `BLOCKED` if requirements, permissions or external services are unavailable.
+- External Skills (Superpowers, Matt Pocock `/tdd`, gstack, Impeccable, Playwright) are *not* required to create the planning queue, and are still separately installed.
+
+**Reference:** [Claude Code Skills](https://code.claude.com/docs/en/skills) · [GitHub CLI repo creation](https://cli.github.com/manual/gh_repo_create) · [GitHub CLI current repository](https://cli.github.com/manual/gh_repo_view)
+
+---
 
 ## GitHub distribution — Publish / Install / Update / Uninstall
 
@@ -9,7 +144,7 @@
 ### Repository layout to publish on GitHub
 
 ```text
-claude-code-skill-toolkit/
+claude-code-full-flow-toolkit/
 ├── README.md
 ├── install.ps1
 ├── uninstall.ps1
@@ -54,7 +189,7 @@ After extracting the ZIP, make sure you are working **directly inside** the fold
    git add README.md install.ps1 uninstall.ps1 THIRD-PARTY-INTEGRATIONS.md PHASE-3-IMPLEMENTATION-PLAN.md agents skills templates
    git diff --cached --stat
    git diff --cached --check
-   git commit -m "Publish PS Full-Flow Toolkit v6"
+   git commit -m "Publish PS Full-Flow Toolkit v8"
    ```
 
    **Review staged files before committing.** Avoid `git add -A` in folders that might contain personal data. If the folder is already a Git repository, inspect its branch, remote, and changes first; do not reinitialize Git or overwrite an existing remote unintentionally.
@@ -62,8 +197,8 @@ After extracting the ZIP, make sure you are working **directly inside** the fold
 5. Create the repository and push to GitHub **only after confirming its name and permissions**:
 
    ```powershell
-   gh repo create OWNER/claude-code-skill-toolkit --private --source=. --remote=origin --push
-   gh repo view OWNER/claude-code-skill-toolkit --web
+   gh repo create OWNER/claude-code-full-flow-toolkit --private --source=. --remote=origin --push
+   gh repo view OWNER/claude-code-full-flow-toolkit --web
    ```
 
    `--private` restricts repository access to authorized users. Switch to `--public` only after confirming the contents are ready for public release. Use `gh repo create` **only to create a new repository**, not for an existing one.
@@ -72,7 +207,7 @@ After extracting the ZIP, make sure you are working **directly inside** the fold
 
 ```powershell
 git remote -v
-git remote add origin https://github.com/OWNER/claude-code-skill-toolkit.git
+git remote add origin https://github.com/OWNER/claude-code-full-flow-toolkit.git
 git push -u origin main
 ```
 
@@ -86,11 +221,11 @@ Ideally, create the GitHub repository without selecting a README, License, or `.
 
    ```powershell
    Set-Location (Join-Path $HOME 'Documents')
-   git clone https://github.com/OWNER/claude-code-skill-toolkit.git
-   Set-Location .\claude-code-skill-toolkit
+   git clone https://github.com/OWNER/claude-code-full-flow-toolkit.git
+   Set-Location .\claude-code-full-flow-toolkit
    ```
 
-   Alternatively, run `gh repo clone OWNER/claude-code-skill-toolkit` instead of `git clone` if you have already authenticated GitHub CLI. **Cloning alone does not install the Skills.**
+   Alternatively, run `gh repo clone OWNER/claude-code-full-flow-toolkit` instead of `git clone` if you have already authenticated GitHub CLI. **Cloning alone does not install the Skills.**
 
 2. Inspect the cloned source before running any script:
 
@@ -114,7 +249,7 @@ Ideally, create the GitHub repository without selecting a README, License, or `.
    .\install.ps1 -Force
    ```
 
-   With `-Force`, files being replaced are backed up to `~/.claude/full-flow-v6-backups/<timestamp>/` before overwrite. This does **not** automatically install Superpowers, Matt Pocock Skills, gstack, Impeccable, Playwright, or other external software. See the Installation Matrix and Step 3 below.
+   With `-Force`, files being replaced are backed up to `~/.claude/full-flow-v7-backups/<timestamp>/` before overwrite. This does **not** automatically install Superpowers, Matt Pocock Skills, gstack, Impeccable, Playwright, or other external software. See the Installation Matrix and Step 3 below.
 
 4. Restart Claude Code **from any project repository**:
 
@@ -122,14 +257,14 @@ Ideally, create the GitHub repository without selecting a README, License, or `.
    claude
    ```
 
-   Inside Claude Code, type `/` and look for `/ps-plan-project`, `/ps-plan-waves`, `/ps-implement-wave`, and `/ps-e2e-plan` to confirm Skill discovery. Use `/ps-check-integrations all` to check any external integrations you chose to install.
+   Inside Claude Code, type `/` and look for `/ps-full-flow`, `/ps-plan-project`, `/ps-plan-waves`, `/ps-implement-wave`, and `/ps-e2e-plan` to confirm Skill discovery. Use `/ps-check-integrations all` to check any external integrations you chose to install.
 
 ### C. Update the Toolkit when a new version is published on GitHub
 
 Open **PowerShell in the cloned Toolkit source folder (not your application project)** and check for local modifications before updating:
 
 ```powershell
-Set-Location (Join-Path $HOME 'Documents\claude-code-skill-toolkit')
+Set-Location (Join-Path $HOME 'Documents\claude-code-full-flow-toolkit')
 git status --short
 git pull --ff-only
 Set-ExecutionPolicy -Scope Process Bypass
@@ -145,7 +280,7 @@ After updating, restart Claude Code and check the slash commands again. **Runnin
 1. Open PowerShell in the **cloned source folder** and inspect the uninstall script:
 
    ```powershell
-   Set-Location (Join-Path $HOME 'Documents\claude-code-skill-toolkit')
+   Set-Location (Join-Path $HOME 'Documents\claude-code-full-flow-toolkit')
    Get-Content .\uninstall.ps1
    Set-ExecutionPolicy -Scope Process Bypass
    .\uninstall.ps1
@@ -166,13 +301,14 @@ After updating, restart Claude Code and check the slash commands again. **Runnin
 
 | Goal | Run in | Command |
 |---|---|---|
-| Publish repository (first time) | PowerShell, Toolkit root | `gh repo create OWNER/claude-code-skill-toolkit --private --source=. --remote=origin --push` |
-| Clone Repo | PowerShell | `git clone https://github.com/OWNER/claude-code-skill-toolkit.git` |
+| Publish repository (first time) | PowerShell, Toolkit root | `gh repo create OWNER/claude-code-full-flow-toolkit --private --source=. --remote=origin --push` |
+| Clone Repo | PowerShell | `git clone https://github.com/OWNER/claude-code-full-flow-toolkit.git` |
 | First installation | PowerShell, Toolkit root | `.\install.ps1` |
 | Upgrade / Replace (with backup) | PowerShell, Root Toolkit | `.\install.ps1 -Force` |
 | Get latest code | PowerShell, Root Toolkit | `git pull --ff-only` |
 | Uninstall Toolkit | PowerShell, Root Toolkit | `.\uninstall.ps1` |
-| Verify Skills | Inside Claude Code | Type `/` and search for `/ps-plan-project` |
+| Verify Skills | Inside Claude Code | Type `/` and search for `/ps-full-flow` |
+| One-command project to queue | Inside Claude Code, in app repo | `/ps-full-flow` |
 
 **Official references:** [GitHub CLI — gh repo create](https://cli.github.com/manual/gh_repo_create) · [GitHub Docs — Add locally hosted code](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github) · [GitHub Docs — Clone a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) · [Claude Code — Skills](https://code.claude.com/docs/en/skills) · [Claude Code — Subagents](https://code.claude.com/docs/en/sub-agents)
 
@@ -182,7 +318,7 @@ After updating, restart Claude Code and check the slash commands again. **Runnin
 
 | Skill set / Tool | What we use it for | Included in Toolkit ZIP? | Install separately? | Per-project setup? |
 |---|---|---|---|---|
-| **PS Full-Flow Toolkit** | `/ps-plan-project`, `/ps-plan-waves`, `/ps-implement-wave`, E2E reporting, and all 15 workflow Skills | **Yes** | Run `install.ps1` once | Read the project rules and issue scope for each project |
+| **PS Full-Flow Toolkit** | `/ps-full-flow`, `/ps-plan-project`, `/ps-plan-waves`, `/ps-implement-wave`, E2E reporting, and all 16 workflow Skills | **Yes** | Run `install.ps1` once | Read the project rules and issue scope for each project |
 | **Claude Code** | AI coding CLI that invokes Skills/Subagents | **No** | **Required** | Open it in each repository |
 | **Git** | Inspect diffs, branches and checkouts; needed for the gstack installer | **No** | **Required** | The project must be a Git repository |
 | **GitHub CLI (`gh`)** | Read and create GitHub Issues and Milestones | **No** | **Required for GitHub workflows** | Verify the target repository and GitHub permissions |
@@ -194,7 +330,7 @@ After updating, restart Claude Code and check the slash commands again. **Runnin
 | **Playwright MCP** | Interactive browser exploration/debugging only | **No** | Optional installation | Configure MCP and permissions separately |
 | **Security plugins** | Optional scanning/advice beyond the bundled Agent review | **No** | Optional installation | Confirm the commands exist before use |
 
-**Important:** All 15 `ps-*` Skills and Toolkit Subagents are available after installation, but external integrations such as `/tdd`, `/browse`, `/impeccable`, and `superpowers` are **not** downloaded or enabled automatically. `ps-e2e-test` does not install packages or browsers.
+**Important:** All 16 `ps-*` Skills and Toolkit Subagents are available after installation, but external integrations such as `/tdd`, `/browse`, `/impeccable`, and `superpowers` are **not** downloaded or enabled automatically. `ps-e2e-test` does not install packages or browsers.
 
 ## Step 0 — Check prerequisites on Windows
 
@@ -337,7 +473,7 @@ Type `/` to confirm the commands you actually installed appear, such as `/ps-pla
 | Implementation queue | `/ps-implementation-table OWNER/REPO` | Dependency-ordered Issue table; approval |
 | Implementation | `/ps-implement-wave W1 --role frontend` or `/ps-implement-issue 123 --role backend` | Role-scoped diffs and evidence |
 | Verification | `/ps-verify-issue 123`, `/ps-review-code` | Actual code/tests findings |
-| E2E | `/ps-e2e-plan W1`, `/ps-e2e-test W1 --env staging`, `/ps-e2e-report W1`, `/ps-e2e-verify W1` | Test evidence, report and defects |
+| E2E | `/ps-e2e-plan W1 --target both`, `/ps-e2e-test W1 --target both --env staging`, `/ps-e2e-report W1`, `/ps-e2e-verify W1` | Test evidence, report and defects |
 | Quality Gate | `/ps-e2e-gate W1` | PASS / FAIL / BLOCKED; STOP |
 
 **Wave vs Milestone:** A Milestone is a GitHub delivery target; a Wave is a dependency-ordered batch of implementation tasks. **Allowed roles:** `backend`, `frontend`, `database`, `qa`, and `devops`. No command should automatically close issues, merge, push, deploy, or start the next Wave.
@@ -350,8 +486,8 @@ Example commands (Issue numbers below are hypothetical):
 /ps-implementation-table OWNER/REPO
 # Approved: Wave W1, frontend scope only
 /ps-implement-wave W1 --role frontend
-/ps-e2e-plan W1
-/ps-e2e-test W1 --env staging
+/ps-e2e-plan W1 --target both
+/ps-e2e-test W1 --target both --env staging
 /ps-e2e-report W1
 /ps-e2e-verify W1
 /ps-e2e-gate W1
@@ -382,7 +518,7 @@ Example commands (Issue numbers below are hypothetical):
 
 ## Full v6 workflow/reference material (retained from prior version)
 
-# Claude Code Full-Flow Toolkit v6 — PS Waves + Impeccable + E2E Testing
+# Claude Code Full-Flow Toolkit v8 — PS Waves + Impeccable + E2E Testing
 
 Reusable **global Claude Code Subagents and Skills**, designed for a two-stage GitHub Issues workflow with human approval gates and mandatory role-based implementation.
 
@@ -585,8 +721,8 @@ The toolkit now includes **five new global skills** and three E2E-focused subage
 
 | Skill | Purpose |
 |---|---|
-| `/ps-e2e-plan W1` | Map real GitHub Issue acceptance criteria to cases and a test plan |
-| `/ps-e2e-test W1 --env staging` | Execute approved existing Playwright tests and collect machine-readable evidence |
+| `/ps-e2e-plan W1 --target both` | Map real GitHub Issue acceptance criteria to cases and a test plan |
+| `/ps-e2e-test W1 --target both --env staging` | Execute approved existing Playwright tests and collect machine-readable evidence |
 | `/ps-e2e-report W1` | Summarize JSON/JUnit/HTML results and defect findings, no fictional PASS |
 | `/ps-e2e-verify W1` | Map criteria to executed tests and actual results |
 | `/ps-e2e-gate W1` | PASS / FAIL / BLOCKED and STOP; no automatic issue closure or next wave |

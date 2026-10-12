@@ -28,8 +28,8 @@ argument-hint: "WAVE-ID --role backend|frontend|database|qa|devops"
 - Do not require Impeccable for unrelated roles. If explicitly required for this frontend wave but unavailable, return BLOCKED with installation instructions; otherwise report a native frontend review fallback as PARTIAL where design validation was requested.
 - Do not run `impeccable init`, external CLI installers, browser tooling, migrations, commits, pushes or deployments implicitly.
 
-## E2E quality gate before Wave completion (v6)
-- After authorized issue implementation and normal unit/integration/security reviews, identify approved E2E scenarios for this wave using `/ps-e2e-plan`. Test planning itself must not modify files.
-- When the wave exit criteria require E2E, use `/ps-e2e-test <WAVE-ID> --env local|staging` only after environment access and test execution are authorized. Generate the evidence-based `/ps-e2e-report`, then `/ps-e2e-verify`, then `/ps-e2e-gate`.
-- If tests/tooling/environment are missing, record BLOCKED; never count unrun tests as passing or advance to the next wave. Playwright MCP or gstack `/browse` may assist investigation but do not substitute for test runner evidence.
+## E2E quality gate before Wave completion (v8 — API + Frontend)
+- After authorized issue implementation and normal unit/integration/security reviews, identify mandatory API endpoint (HTTP method + path), frontend route, and cross-layer user-journey acceptance criteria. Use `/ps-e2e-plan <WAVE-ID> --target both` for Waves involving both surfaces; use `--target api` or `--target frontend` only when scope is documented. Planning itself must not modify files.
+- When the wave exit criteria require E2E, use `/ps-e2e-test <WAVE-ID> --target both --env local|staging` (or explicitly approved narrower target) only after environment access and test execution are authorized. Generate the evidence-based `/ps-e2e-report`, then `/ps-e2e-verify`, then `/ps-e2e-gate`.
+- Explicitly require API, frontend and cross-layer gate verdicts when those surfaces are mandatory; an API-only PASS never satisfies a mandatory frontend or UI→API journey. If tests/tooling/environment are missing, record BLOCKED; never count unrun tests as passing or advance to the next wave. Playwright MCP or gstack `/browse` may assist investigation but do not substitute for test runner evidence.
 - STOP after reporting the gate verdict. Never automatically close issues, launch another wave or deploy.
